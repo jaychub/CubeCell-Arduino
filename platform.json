@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/HelTecAutomation/platform-asrmicro650x.git"
+    "url": "https://github.com/jaychub/platform-asrmicro650x.git"
   },
   "version": "1.2.0",
   "frameworks": {
@@ -37,7 +37,7 @@
     },
     "framework-arduinoasrmicro650x": {
       "type": "framework",
-      "owner": "heltecautomation",
+      "owner": "jaychub",
       "version": "~1.2.0",
       "optional": true
     },
