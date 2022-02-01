@@ -662,7 +662,6 @@ bool RegionEU868TxConfig(TxConfigParams_t *txConfig, int8_t *txPower, TimerTime_
     }
     else
     {
-        printf("\n\t********************* %d\n", LORAWAN_PREAMBLE_LENGTH);
         modem = MODEM_LORA;
         Radio.SetTxConfig(modem, phyTxPower, 0, bandwidth, phyDr, 1, LORAWAN_PREAMBLE_LENGTH, false, true, 0, 0, false, 3000);
     }
