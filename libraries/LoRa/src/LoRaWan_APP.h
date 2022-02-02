@@ -47,22 +47,23 @@ extern uint16_t userChannelsMask[6];
  * Defines a random delay for application data transmission duty cycle. 1s,
  * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        1000
+#define APP_TX_DUTYCYCLE_RND 1000
 
 extern enum eDeviceState_LoraWan deviceState;
 
-class LoRaWanClass{
+class LoRaWanClass
+{
 public:
-  void init(DeviceClass_t lorawanClass,LoRaMacRegion_t region);
+  void init(DeviceClass_t lorawanClass, LoRaMacRegion_t region);
   void join();
   void send();
   void cycle(uint32_t dutyCycle);
-  void sleep();
+  void sleep(bool *wokeUp);
   void setDataRateForNoADR(int8_t dataRate);
   void ifskipjoin();
   void generateDeveuiByChipID();
 
-#if defined(CubeCell_BoardPlus)||defined(CubeCell_GPS)
+#if defined(CubeCell_BoardPlus) || defined(CubeCell_GPS)
   void displayJoining();
   void displayJoined();
   void displaySending();
@@ -71,16 +72,14 @@ public:
 #endif
 };
 
-
-extern "C" bool SendFrame( void );
-extern "C" void turnOnRGB(uint32_t color,uint32_t time);
+extern "C" bool SendFrame(void);
+extern "C" void turnOnRGB(uint32_t color, uint32_t time);
 extern "C" void turnOffRGB(void);
-extern "C" bool checkUserAt(char * cmd, char * content);
+extern "C" bool checkUserAt(char *cmd, char *content);
 extern "C" void downLinkAckHandle();
 extern "C" void downLinkDataHandle(McpsIndication_t *mcpsIndication);
-extern "C" void lwan_dev_params_update( void );
-extern "C" void dev_time_updated( void );
-
+extern "C" void lwan_dev_params_update(void);
+extern "C" void dev_time_updated(void);
 
 extern LoRaWanClass LoRaWAN;
 

@@ -912,7 +912,8 @@ int8_t RegionEU868AlternateDr(AlternateDrParams_t *alternateDr)
     }
     else
     {
-        datarate = DR_5;
+        // TODO:
+        datarate = EU868_DEFAULT_DATARATE;
     }
     return datarate;
 }
