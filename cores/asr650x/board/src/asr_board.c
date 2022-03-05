@@ -471,7 +471,7 @@ uint8_t BoardGetBatteryLevel(void)
     // 1..254 The battery level, 1 being at minimum and 254 being at maximum
     // 255    The end-device was not able to measure the battery level.
     const uint32_t batteryVoltage = BoardGetBatteryVoltage();
-    printf("The end-device BoardGetBatteryVoltage():%d \r\n", batteryVoltage);
+    printf("\nThe end-device BoardGetBatteryVoltage():%d \r\n", batteryVoltage);
     uint8_t batteryLevel = 0;
 #if (BATTERY_TYPE)
     const double maxBattery = 3.6; // 3.6 for saft LS17500 ;//4.2 for lithium; //must update to match SAFT 3.6 max voltage
@@ -482,7 +482,7 @@ uint8_t BoardGetBatteryLevel(void)
 #endif
     const double batVoltage = fmax(minBattery, fmin(maxBattery, batteryVoltage / 1000.0));
 
-    printf("The end-device BoardGetBatteryVoltage():%d batVoltage:%d\r\n", batteryVoltage, batVoltage);
+    printf("\nThe end-device BoardGetBatteryVoltage():%d batVoltage:%d\r\n", batteryVoltage, batVoltage);
 
     if (batteryVoltage >= BATTERY_MAX_LEVEL)
     {

@@ -70,7 +70,7 @@ void TimerLowPowerHandler(bool *wokeUp)
 }
 void lowPowerHandler(void)
 {
-    bool wdtState; // keep track of wheter the watchdog was enabled.
+    bool wdtState; // keep track of whether the watchdog was enabled.
     if (wakeByUart == false)
     {
         pinMode(P4_1, ANALOG); // SPI0  MISO;

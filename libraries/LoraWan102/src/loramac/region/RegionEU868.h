@@ -59,6 +59,7 @@
 /*!
  * Number of channels to apply for the CF list
  */
+// TODO:
 #define EU868_NUMB_CHANNELS_CF_LIST 5
 
 /*!
@@ -287,6 +288,10 @@
         868100000, 0, {((DR_5 << 4) | DR_0)}, 1 \
     }
 
+// #define EU868_LC1                               \
+//     {                                           \
+//         869100000, 0, {((DR_5 << 4) | DR_0)}, 1 \
+//     }
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
@@ -295,6 +300,10 @@
     {                                           \
         868300000, 0, {((DR_5 << 4) | DR_0)}, 1 \
     }
+// #define EU868_LC2                               \
+//     {                                           \
+//         869300000, 0, {((DR_5 << 4) | DR_0)}, 1 \
+//     }
 
 /*!
  * LoRaMac default channel 3
@@ -304,7 +313,10 @@
     {                                           \
         868500000, 0, {((DR_5 << 4) | DR_0)}, 1 \
     }
-
+// #define EU868_LC3                               \
+//     {                                           \
+//         869500000, 0, {((DR_5 << 4) | DR_0)}, 1 \
+//     }
 #define EU868_LC4                                                \
     {                                                            \
         867100000, 0, {((DR_5 << 4) | EU868_TX_MIN_DATARATE)}, 0 \
