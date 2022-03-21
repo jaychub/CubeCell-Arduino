@@ -440,7 +440,7 @@ void SX126xSetDio3AsTcxoCtrl(RadioTcxoCtrlVoltage_t tcxoVoltage, uint32_t timeou
 
 void SX126xSetRfFrequency(uint32_t frequency)
 {
-    printf("\n\t************Frequency:%d", frequency);
+    //  printf("\n\t************Frequency:%d", frequency);
 
     uint8_t buf[4];
     uint32_t freq = 0;

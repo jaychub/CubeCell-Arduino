@@ -104,7 +104,7 @@ bool SendFrame(void)
 	if (LoRaMacQueryTxPossible(appDataSize, &txInfo) != LORAMAC_STATUS_OK)
 	{
 		// Send empty frame in order to flush MAC commands
-		printf("payload length error ...\r\n");
+		DIO_PRINTF("payload length error ...\r\n");
 		mcpsReq.Type = MCPS_UNCONFIRMED;
 		mcpsReq.Req.Unconfirmed.fBuffer = NULL;
 		mcpsReq.Req.Unconfirmed.fBufferSize = 0;
@@ -114,7 +114,7 @@ bool SendFrame(void)
 	{
 		if (isTxConfirmed == false)
 		{
-			printf("unconfirmed uplink sending ...\r\n");
+			DIO_PRINTF("unconfirmed uplink sending ...\r\n");
 			mcpsReq.Type = MCPS_UNCONFIRMED;
 			mcpsReq.Req.Unconfirmed.fPort = appPort;
 			mcpsReq.Req.Unconfirmed.fBuffer = appData;
@@ -123,7 +123,7 @@ bool SendFrame(void)
 		}
 		else
 		{
-			printf("confirmed uplink sending ...\r\n");
+			DIO_PRINTF("confirmed uplink sending ...\r\n");
 			mcpsReq.Type = MCPS_CONFIRMED;
 			mcpsReq.Req.Confirmed.fPort = appPort;
 			mcpsReq.Req.Confirmed.fBuffer = appData;
@@ -262,13 +262,13 @@ void __attribute__((weak)) downLinkAckHandle()
 
 void __attribute__((weak)) downLinkDataHandle(McpsIndication_t *mcpsIndication)
 {
-	printf("+REV DATA:%s,RXSIZE %d,PORT %d\r\n", mcpsIndication->RxSlot ? "RXWIN2" : "RXWIN1", mcpsIndication->BufferSize, mcpsIndication->Port);
-	printf("+REV DATA:");
+	DIO_PRINTF("+REV DATA:%s,RXSIZE %d,PORT %d\r\n", mcpsIndication->RxSlot ? "RXWIN2" : "RXWIN1", mcpsIndication->BufferSize, mcpsIndication->Port);
+	DIO_PRINTF("+REV DATA:");
 	for (uint8_t i = 0; i < mcpsIndication->BufferSize; i++)
 	{
-		printf("%02X", mcpsIndication->Buffer[i]);
+		DIO_PRINTF("%02X", mcpsIndication->Buffer[i]);
 	}
-	printf("\r\n");
+	DIO_PRINTF("\r\n");
 }
 
 /*!
@@ -292,34 +292,34 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
 	turnOnRGB(COLOR_RECEIVED, 200);
 	turnOffRGB();
 #endif
-	printf("received ");
+	DIO_PRINTF("received ");
 	switch (mcpsIndication->McpsIndication)
 	{
 	case MCPS_UNCONFIRMED:
 	{
-		printf("unconfirmed ");
+		DIO_PRINTF("unconfirmed ");
 		break;
 	}
 	case MCPS_CONFIRMED:
 	{
-		printf("confirmed ");
+		DIO_PRINTF("confirmed ");
 		OnTxNextPacketTimerEvent();
 		break;
 	}
 	case MCPS_PROPRIETARY:
 	{
-		printf("proprietary ");
+		DIO_PRINTF("proprietary ");
 		break;
 	}
 	case MCPS_MULTICAST:
 	{
-		printf("multicast ");
+		DIO_PRINTF("multicast ");
 		break;
 	}
 	default:
 		break;
 	}
-	printf("downlink: rssi = %d, snr = %d, datarate = %d\r\n", mcpsIndication->Rssi, (int)mcpsIndication->Snr, (int)mcpsIndication->RxDoneDatarate);
+	DIO_PRINTF("downlink: rssi = %d, snr = %d, datarate = %d\r\n", mcpsIndication->Rssi, (int)mcpsIndication->Snr, (int)mcpsIndication->RxDoneDatarate);
 
 	if (mcpsIndication->AckReceived)
 	{
@@ -352,7 +352,7 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
 
 void __attribute__((weak)) dev_time_updated()
 {
-	printf("device time updated\r\n");
+	DIO_PRINTF("device time updated\r\n");
 }
 
 /*!
@@ -380,7 +380,7 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
 				LoRaWAN.displayJoined();
 			}
 #endif
-			printf("joined\r\n");
+			DIO_PRINTF("joined\r\n");
 
 			// in PassthroughMode,do nothing while joined
 			if (passthroughMode == false)
@@ -391,8 +391,8 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
 		}
 		else
 		{
-			uint32_t rejoin_delay = 30000;
-			printf("join failed, join again at 30s later\r\n");
+			uint32_t rejoin_delay = 5 * 60 * 60 * 1000;
+			DIO_PRINTF("join failed, join again at 5 hour later\r\n");
 			delay(5);
 			TimerSetValue(&TxNextPacketTimer, rejoin_delay);
 			TimerStart(&TxNextPacketTimer);
@@ -503,47 +503,47 @@ void LoRaWanClass::generateDeveuiByChipID()
 
 void LoRaWanClass::init(DeviceClass_t lorawanClass, LoRaMacRegion_t region)
 {
-	Serial.print("\r\nLoRaWAN ");
+	DIO_PRINTF("\r\nLoRaWAN ");
 	switch (region)
 	{
 	case LORAMAC_REGION_AS923_AS1:
-		Serial.print("AS923(AS1:922.0-923.4MHz)");
+		DIO_PRINTF("AS923(AS1:922.0-923.4MHz)");
 		break;
 	case LORAMAC_REGION_AS923_AS2:
-		Serial.print("AS923(AS2:923.2-924.6MHz)");
+		DIO_PRINTF("AS923(AS2:923.2-924.6MHz)");
 		break;
 	case LORAMAC_REGION_AU915:
-		Serial.print("AU915");
+		DIO_PRINTF("AU915");
 		break;
 	case LORAMAC_REGION_CN470:
-		Serial.print("CN470");
+		DIO_PRINTF("CN470");
 		break;
 	case LORAMAC_REGION_CN779:
-		Serial.print("CN779");
+		DIO_PRINTF("CN779");
 		break;
 	case LORAMAC_REGION_EU433:
-		Serial.print("EU433");
+		DIO_PRINTF("EU433");
 		break;
 	case LORAMAC_REGION_EU868:
-		Serial.print("EU868");
+		DIO_PRINTF("EU868");
 		break;
 	case LORAMAC_REGION_KR920:
-		Serial.print("KR920");
+		DIO_PRINTF("KR920");
 		break;
 	case LORAMAC_REGION_IN865:
-		Serial.print("IN865");
+		DIO_PRINTF("IN865");
 		break;
 	case LORAMAC_REGION_US915:
-		Serial.print("US915");
+		DIO_PRINTF("US915");
 		break;
 	case LORAMAC_REGION_US915_HYBRID:
-		Serial.print("US915_HYBRID ");
+		DIO_PRINTF("US915_HYBRID ");
 		break;
 	default:
 		break;
 	}
 
-	Serial.printf(" Class %X start!\r\n\r\n", loraWanClass + 10);
+	DIO_PRINTF(" Class %X start!\r\n\r\n", loraWanClass + 10);
 
 	if (region == LORAMAC_REGION_AS923_AS1 || region == LORAMAC_REGION_AS923_AS2)
 		region = LORAMAC_REGION_AS923;
@@ -585,7 +585,7 @@ void LoRaWanClass::join()
 {
 	if (overTheAirActivation)
 	{
-		Serial.print("joining...");
+		DIO_PRINTF("joining...\n");
 		MlmeReq_t mlmeReq;
 
 		mlmeReq.Type = MLME_JOIN;
@@ -666,13 +666,15 @@ void LoRaWanClass::setDataRateForNoADR(int8_t dataRate)
 
 void LoRaWanClass::ifskipjoin()
 {
+	DIO_PRINTF("\n\t......checkNetInfo():%d modeLoraWan:%d\n", checkNetInfo(), modeLoraWan);
 	// if saved net info is OK in lorawan mode, skip join.
 	if (checkNetInfo() && modeLoraWan)
+	// if (modeLoraWan)
 	{
-		Serial.println();
+		// Serial.println();
 		if (passthroughMode == false)
 		{
-			Serial.println("Wait 3s for user key to rejoin network");
+			DIO_PRINTF("Wait 3s for user key to rejoin network");
 			uint16_t i = 0;
 			pinMode(USER_KEY, INPUT);
 			while (i <= 3000)
@@ -698,18 +700,18 @@ void LoRaWanClass::ifskipjoin()
 		getNetInfo();
 		if (passthroughMode == false)
 		{
-			Serial.println("User key not detected,Use reserved Net");
+			DIO_PRINTF("User key not detected,Use reserved Net");
 		}
 		else
 		{
-			Serial.println("Use reserved Net");
+			DIO_PRINTF("Use reserved Net");
 		}
 		if (passthroughMode == false)
 		{
 			int32_t temp = randr(0, appTxDutyCycle);
-			Serial.println();
-			Serial.printf("Next packet send %d ms later(random time from 0 to APP_TX_DUTYCYCLE)\r\n", temp);
-			Serial.println();
+			// Serial.println();
+			DIO_PRINTF("Next packet send %d ms later(random time from 0 to APP_TX_DUTYCYCLE)\r\n", temp);
+			// Serial.println();
 			cycle(temp); // send packet in a random time to avoid network congestion.
 		}
 		deviceState = DEVICE_STATE_SLEEP;

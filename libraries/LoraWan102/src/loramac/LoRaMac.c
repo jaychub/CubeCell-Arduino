@@ -1567,7 +1567,12 @@ static void OnMacStateCheckTimerEvent(void)
                         {
                             LoRaMacFlags.Bits.MacDone = 0;
                             // Sends the same frame again
+                            // TODO:
+                            // OnTxDelayedTimerEvent();
+                            // if (McpsConfirm.McpsRequest == MCPS_CONFIRMED)
                             OnTxDelayedTimerEvent();
+                            // else
+                            //     LoRaMacState &= LORAMAC_IDLE;
                         }
                     }
                 }
@@ -1589,6 +1594,8 @@ static void OnMacStateCheckTimerEvent(void)
                         if (IsUpLinkCounterFixed == false)
                         {
                             UpLinkCounter++;
+                            // TODO:uncomment all of them when LORAWAN_Net_Reserve is on
+                            //  saveUpCnt();
 // SaveUpCnt();
 #ifdef CONFIG_LORA_VERIFY
                             if (g_lora_debug)
@@ -1618,7 +1625,8 @@ static void OnMacStateCheckTimerEvent(void)
                 if (IsUpLinkCounterFixed == false)
                 {
                     UpLinkCounter++;
-                    // SaveUpCnt();
+                    // saveUpCnt();
+                    //  SaveUpCnt();
 #ifdef CONFIG_LORA_VERIFY
                     if (g_lora_debug)
                         PRINTF_RAW("Confirmed data received ACK, UpLinkCounter:%u\r\n", (unsigned int)UpLinkCounter);
@@ -1673,6 +1681,7 @@ static void OnMacStateCheckTimerEvent(void)
                     if (IsUpLinkCounterFixed == false)
                     {
                         UpLinkCounter++;
+                        // saveUpCnt();
 // SaveUpCnt();
 #ifdef CONFIG_LORA_VERIFY
                         if (g_lora_debug)
@@ -1786,6 +1795,7 @@ static void OnTxDelayedTimerEvent(void)
     TimerStop(&TxDelayedTimer);
     LoRaMacState &= ~LORAMAC_TX_DELAYED;
 
+    DIO_PRINTF("\t\n----------------LoRaMacFlags.Bits.MlmeReq :%d \t\n------------MlmeConfirm.MlmeRequest:%d\n", LoRaMacFlags.Bits.MlmeReq, MlmeConfirm.MlmeRequest);
     if ((LoRaMacFlags.Bits.MlmeReq == 1) && (MlmeConfirm.MlmeRequest == MLME_JOIN))
     {
         ResetMacParameters();
@@ -3193,12 +3203,12 @@ LoRaMacStatus_t SendFrameOnChannel(uint8_t channel)
     // }
 
     // To dump transmitted packets...
-    printf("\n\tRadioSend: size=%d, channel=%d, datarate=%d, txpower=%d, maxeirp=%d, antennagain=%d\r\n", (int)LoRaMacBufferPktLen, (int)txConfig.Channel, (int)txConfig.Datarate, (int)txConfig.TxPower, (int)txConfig.MaxEirp, (int)txConfig.AntennaGain);
+    DIO_PRINTF("\n\tRadioSend: size=%d, channel=%d, datarate=%d, txpower=%d, maxeirp=%d, antennagain=%d\r\n", (int)LoRaMacBufferPktLen, (int)txConfig.Channel, (int)txConfig.Datarate, (int)txConfig.TxPower, (int)txConfig.MaxEirp, (int)txConfig.AntennaGain);
     for (int i = 0; i < LoRaMacBufferPktLen; i++)
     {
-        printf("%02x ", LoRaMacBuffer[i]);
+        DIO_PRINTF("%02x ", LoRaMacBuffer[i]);
     }
-    printf("\r\n");
+    DIO_PRINTF("\r\n");
 
     //////////////// END OF INSERTION
 
@@ -3540,7 +3550,7 @@ LoRaMacStatus_t LoRaMacQueryTxPossible(uint8_t size, LoRaMacTxInfo_t *txInfo)
             currentDrForNoAdr++;
             datarate = currentDrForNoAdr;
         }
-        printf("Payload length(%d) and fOptLen(%d) exceed max size(%d for current datarate DR %d), set datarate to Dr %d\r\n", size, fOptLen, maxN, datarate - 1, datarate);
+        DIO_PRINTF("Payload length(%d) and fOptLen(%d) exceed max size(%d for current datarate DR %d), set datarate to Dr %d\r\n", size, fOptLen, maxN, datarate - 1, datarate);
     }
     return LORAMAC_STATUS_OK;
 }
