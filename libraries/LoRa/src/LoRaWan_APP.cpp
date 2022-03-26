@@ -280,7 +280,7 @@ void __attribute__((weak)) downLinkDataHandle(McpsIndication_t *mcpsIndication)
 int revrssi;
 static void McpsIndication(McpsIndication_t *mcpsIndication)
 {
-	if (mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK)
+	if (mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK)	
 	{
 		return;
 	}
