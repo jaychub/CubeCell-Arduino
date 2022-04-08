@@ -76,7 +76,7 @@ extern "C" bool SendFrame(void);
 extern "C" void turnOnRGB(uint32_t color, uint32_t time);
 extern "C" void turnOffRGB(void);
 extern "C" bool checkUserAt(char *cmd, char *content);
-extern "C" void downLinkAckHandle();
+extern "C" void downLinkAckHandle(McpsIndication_t *mcpsIndication);
 extern "C" void downLinkDataHandle(McpsIndication_t *mcpsIndication);
 extern "C" void lwan_dev_params_update(void);
 extern "C" void dev_time_updated(void);

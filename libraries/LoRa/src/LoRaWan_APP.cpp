@@ -257,7 +257,7 @@ void turnOffRGB(void)
 
 void __attribute__((weak)) downLinkAckHandle()
 {
-	// printf("ack received\r\n");
+	printf("ack received\r\n");
 }
 
 void __attribute__((weak)) downLinkDataHandle(McpsIndication_t *mcpsIndication)
@@ -280,7 +280,7 @@ void __attribute__((weak)) downLinkDataHandle(McpsIndication_t *mcpsIndication)
 int revrssi;
 static void McpsIndication(McpsIndication_t *mcpsIndication)
 {
-	if (mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK)	
+	if (mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK)
 	{
 		return;
 	}
@@ -323,7 +323,7 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
 
 	if (mcpsIndication->AckReceived)
 	{
-		downLinkAckHandle();
+		downLinkAckHandle(mcpsIndication);
 	}
 
 	if (mcpsIndication->RxData == true)
@@ -353,6 +353,11 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
 void __attribute__((weak)) dev_time_updated()
 {
 	DIO_PRINTF("device time updated\r\n");
+}
+
+void __attribute__((weak)) dev_link_check(MlmeConfirm_t *mlmeConfirm)
+{
+	DIO_PRINTF("device Link Checked\r\n");
 }
 
 /*!
@@ -405,6 +410,9 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
 		{
 			// Check DemodMargin
 			// Check NbGateways
+			dev_link_check(mlmeConfirm);
+			// DIO_PRINTF("MLME_LINK_CHECK DemodMargin:%d", mlmeConfirm->DemodMargin);
+			// DIO_PRINTF("MLME_LINK_CHECK NbRetries:%d", mlmeConfirm->NbRetries);
 		}
 		break;
 	}
