@@ -38,6 +38,39 @@ extern "C"
 {
 #endif
 
+/*!
+ * Battery thresholds
+ */
+#warning "Change the Battery type before going to PRODUCTION
+#define BATTERY_TYPE 0 // 1= SAFT 3.6v or 0=Lithium 4.2V
+#define BATERRY_LEVEL_EMPTY 0x01
+#define BATERRT_LEVEL_FULL 0xEF
+#if (BATTERY_TYPE)
+#define BATTERY_LEVEL_MAX 3600      // mV 3.6 for saft LS17500 and 4200 for lithium
+#define BATTERY_LEVEL_MIN 2200      // mV 2.2 minimum for saft LS17500 and 3.4 minimum for lithium
+#define BATTERY_LEVEL_SHUTDOWN 2100 // mV 2.1 shutdown for saft LS17500 and 3.3 minimum for lithium
+#else
+#define BATTERY_LEVEL_MAX 4100      // mV 3.6 for saft LS17500 and 4100 for lithium
+#define BATTERY_LEVEL_MIN 3400      // mV 2.4 minimum for saft LS17500 and 3.4 minimum for lithium
+#define BATTERY_LEVEL_SHUTDOWN 3300 // mV 2.3 minimum for saft LS17500 and 3.3 minimum for lithium
+#endif
+    /*!
+     * Battery thresholds
+     */
+    // #warning "Change the Battery type before going to PRODUCTION
+    // #define BATTERY_TYPE 0       // 1= SAFT 3.6v or 0=Lithium 4.2V
+    // #define BAT_LEVEL_EMPTY 0x01 // 254
+    // #define BAT_LEVEL_FULL 0xFE  // 1
+    // #if (BATTERY_TYPE)
+    // #define BATTERY_MAX_LEVEL 3600      // mV 3.6 for saft LS17500 and 4200 for lithium
+    // #define BATTERY_MIN_LEVEL 2200      // mV 2.2 minimum for saft LS17500 and 3.4 minimum for lithium
+    // #define BATTERY_SHUTDOWN_LEVEL 2100 // mV 2.1 shutdown for saft LS17500 and 3.3 minimum for lithium
+    // #else
+    // #define BATTERY_MAX_LEVEL 4100      // mV 3.6 for saft LS17500 and 4100 for lithium
+    // #define BATTERY_MIN_LEVEL 3400      // mV 2.4 minimum for saft LS17500 and 3.4 minimum for lithium
+    // #define BATTERY_SHUTDOWN_LEVEL 3300 // mV 2.3 minimum for saft LS17500 and 3.3 minimum for lithium
+    // #endif
+
     /*!
      * Possible power sources
      */
