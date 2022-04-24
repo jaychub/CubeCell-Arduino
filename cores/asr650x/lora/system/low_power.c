@@ -79,7 +79,9 @@ void lowPowerHandler(void)
         wdtState = CySysWdtGetEnabledStatus(); // get the status of the wdt whether it is enabled by the user or not
         if (wdtState)
             CySysWdtDisable(); // if it was enabled then disable it
-        CySysPmDeepSleep();    // go to deep sleep use CySysPmSleep() for sleep mode if
+        // TODO: test _Sleep() https://manualzz.com/doc/o/epbds/psoc-creator-system-reference-guide-apis
+        CySysPmDeepSleep(); // go to deep sleep use CySysPmSleep() for sleep mode if
+
         if (wdtState)
             CySysWdtEnable(); // restore the status of the wdt to enabled only if was enabled by the user
 

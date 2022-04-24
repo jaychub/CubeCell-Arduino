@@ -40,7 +40,7 @@ SX126x_t SX126x;
 /*!
  * Battery thresholds
  */
-#warning "Change the Battery type before going to PRODUCTION
+//#warning "Change the Battery type before going to PRODUCTION
 // #define BATTERY_TYPE 0 // 1= SAFT 3.6v or 0=Lithium 4.2V
 // //#define BAT_LEVEL_EMPTY 0x01 // 254
 // //#define BAT_LEVEL_FULL 0xFE  // 1
@@ -69,6 +69,11 @@ bool UseTCXO = false;
 uint8_t gPaOptSetting = 0;
 static uint32_t gBaudRate = STDIO_UART_BAUDRATE;
 char gChipId[17];
+
+/*!
+ * Flag used to indicate if board is powered from the USB
+ */
+static bool UsbIsConnected = false;
 
 void SX126xIoInit(void)
 {
@@ -437,8 +442,20 @@ uint32_t BoardGetRandomSeed(void)
     return ((*(uint32_t *)ID1) ^ (*(uint32_t *)ID2) ^ (*(uint32_t *)ID3));
 }
 
+uint8_t GetBoardPowerSource(void)
+{
+    if (UsbIsConnected == false)
+    {
+        return BATTERY_POWER;
+    }
+    else
+    {
+        return USB_POWER;
+    }
+}
+
 /*  get the BatteryVoltage in mV. */
-uint32_t BoardGetBatteryVoltage(void)
+uint16_t BoardGetBatteryVoltage(void)
 {
     float temp = 0;
     uint16_t volt;
@@ -465,42 +482,77 @@ uint32_t BoardGetBatteryVoltage(void)
     volt = volt * 2;
     return volt;
 }
+
 uint8_t BoardGetBatteryLevel(void)
 {
-    // 5.5 End-Device Status (DevStatusReq, DevStatusAns)
-    // 0      The end-device is connected to an external power source.
-    // 1..254 The battery level, 1 being at minimum and 254 being at maximum
-    // 255    The end-device was not able to measure the battery level.
-    const uint32_t batteryVoltage = BoardGetBatteryVoltage();
-    printf("\nThe end-device BoardGetBatteryVoltage():%d \r\n", batteryVoltage);
     uint8_t batteryLevel = 0;
-#if (BATTERY_TYPE)
-    const double maxBattery = 3.6; // 3.6 for saft LS17500 ;//4.2 for lithium; //must update to match SAFT 3.6 max voltage
-    const double minBattery = 2.2; // 2.4 minimum for saft LS17500 and 3.4 minimum for lithium
-#else
-    const double maxBattery = 4.1; // 4.2 for lithium; //must update to match SAFT 3.6 max voltage
-    const double minBattery = 3.3; // 2.4 minimum for saft LS17500 and 3.4 minimum for lithium
-#endif
-    const double batVoltage = fmax(minBattery, fmin(maxBattery, batteryVoltage / 1000.0));
 
-    printf("\nThe end-device BoardGetBatteryVoltage():%d batVoltage:%lu \r\n", batteryVoltage, batVoltage);
+    BatteryVoltage = BoardGetBatteryVoltage();
 
-    if (batteryVoltage > BATTERY_LEVEL_MAX)
+    if (GetBoardPowerSource() == USB_POWER)
     {
-        batteryLevel = 0;
-    }
-    else if ((batteryVoltage > BATTERY_LEVEL_MIN) && (batteryVoltage < BATTERY_LEVEL_MAX))
-    {
-        batteryLevel = BATERRY_LEVEL_EMPTY + ((batVoltage - minBattery) / (maxBattery - minBattery)) * (BATERRT_LEVEL_FULL - BATERRY_LEVEL_EMPTY);
-    }
-    else if ((batteryVoltage > BATTERY_LEVEL_SHUTDOWN) && (batteryVoltage <= BATTERY_LEVEL_MIN) || (batteryVoltage <= BATTERY_LEVEL_SHUTDOWN))
-    {
-        batteryLevel = 1;
+        batteryLevel = BATTERY_LORAWAN_EXT_PWR;
     }
     else
     {
-        batteryLevel = 255;
+        if (BatteryVoltage >= BATTERY_MAX_LEVEL)
+        {
+            batteryLevel = BATTERY_LORAWAN_MAX_LEVEL;
+        }
+        else if ((BatteryVoltage > BATTERY_MIN_LEVEL) && (BatteryVoltage < BATTERY_MAX_LEVEL))
+        {
+            batteryLevel =
+                ((253 * (BatteryVoltage - BATTERY_MIN_LEVEL)) / (BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL)) + 1;
+        }
+        else if ((BatteryVoltage >= BATTERY_SHUTDOWN_LEVEL) && (BatteryVoltage <= BATTERY_MIN_LEVEL))
+        {
+            batteryLevel = 1;
+        }
+        else // if( BatteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
+        {
+            batteryLevel = BATTERY_LORAWAN_UNKNOWN_LEVEL;
+        }
     }
-    // printf("battery level (1-254): %u\n", batlevel);
     return batteryLevel;
 }
+
+// uint8_t BoardGetBatteryLevel(void)
+// {
+//     // 5.5 End-Device Status (DevStatusReq, DevStatusAns)
+//     // 0      The end-device is connected to an external power source.
+//     // 1..254 The battery level, 1 being at minimum and 254 being at maximum
+//     // 255    The end-device was not able to measure the battery level.
+//     const uint32_t batteryVoltage = BoardGetBatteryVoltage();
+//     //printf("\nThe end-device BoardGetBatteryVoltage():%d \r\n", batteryVoltage);
+//     uint8_t batteryLevel = 0;
+//     //#if (BATTERY_TYPE)
+//     //   const double maxBattery = 3.6; // 3.6 for saft LS17500 ;//4.2 for lithium; //must update to match SAFT 3.6 max voltage
+//     //   const double minBattery = 2.2; // 2.4 minimum for saft LS17500 and 3.4 minimum for lithium
+//     //#else
+//     const double maxBattery = BATTERY_LEVEL_MAX; // / 1000; // 4.1; // 4.2 for lithium; //must update to match SAFT 3.6 max voltage
+//     const double minBattery = BATTERY_LEVEL_MIN; // / 1000; //3.3; // 2.4 minimum for saft LS17500 and 3.4 minimum for lithium
+//                                                  //#endif
+//     const double batVoltage = fmax(minBattery, fmin(maxBattery, batteryVoltage / 1000.0));
+
+//     //printf("\nThe end-device BoardGetBatteryVoltage():%d batVoltage:%f \r\n", batteryVoltage, batVoltage);
+
+//     // power plugged in
+//     if (batteryVoltage > (uint32_t)(BATTERY_LEVEL_MAX * 1000))
+//     {
+//         batteryLevel = 0;
+//     } // measure power level
+//     else if ((batteryVoltage > (uint32_t)(BATTERY_LEVEL_MIN * 1000)) && (batteryVoltage < (uint32_t)(BATTERY_LEVEL_MAX * 1000)))
+//     {
+//         batteryLevel = BATERRY_LEVEL_EMPTY + ((batVoltage - minBattery) / (maxBattery - minBattery)) * (BATERRT_LEVEL_FULL - BATERRY_LEVEL_EMPTY);
+//     }
+//     else if ((batteryVoltage <= (uint32_t)(BATTERY_LEVEL_SHUTDOWN * 1000))) // || (batteryVoltage <= BATTERY_LEVEL_SHUTDOWN))
+//     {
+//         batteryLevel = 1;
+//     }
+//     else
+//     {
+//         batteryLevel = 255; // invalid input
+//     }
+//     // printf("battery level (1-254): %u\n", batlevel);
+//     return batteryLevel;
+// }

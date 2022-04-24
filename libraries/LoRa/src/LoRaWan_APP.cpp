@@ -37,6 +37,9 @@ uint8_t ifDisplayAck = 0;
 uint8_t isDispayOn = 0;
 #endif
 
+// TODO: remove this
+//#define DIO_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
+
 /*loraWan default Dr when adr disabled*/
 #ifdef REGION_US915
 int8_t defaultDrForNoAdr = 3;
@@ -123,6 +126,9 @@ bool SendFrame(void)
 		}
 		else
 		{
+			// TODO:
+			// printf("\nTX Confirmed mcpsReq.Req.Confirmed.Datarate:%d\n currentDrForNoAdr:%d \n", mcpsReq.Req.Confirmed.Datarate, currentDrForNoAdr);
+			// printf("...");
 			DIO_PRINTF("confirmed uplink sending ...\r\n");
 			mcpsReq.Type = MCPS_CONFIRMED;
 			mcpsReq.Req.Confirmed.fPort = appPort;
@@ -192,22 +198,29 @@ static void OnTxNextPacketTimerEvent(void)
  */
 static void McpsConfirm(McpsConfirm_t *mcpsConfirm)
 {
+	// printf("195 mcpsConfirm->AckReceived:%d \n mcpsConfirm->Status:%d \n mcpsConfirm->McpsRequest:%d \n mcpsConfirm->NbRetries:%d \n mcpsConfirm->UpLinkCounter:%d \n",
+	//	   mcpsConfirm->AckReceived, mcpsConfirm->Status, mcpsConfirm->McpsRequest, mcpsConfirm->NbRetries, mcpsConfirm->UpLinkCounter);
+	downLinkAckHandle(mcpsConfirm);
+	// printf("...");
+
 	if (mcpsConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK)
 	{
 		switch (mcpsConfirm->McpsRequest)
 		{
 		case MCPS_UNCONFIRMED:
 		{
-			// Check Datarate
-			// Check TxPower
+			// printf("\n McpsConfirm: MCPS_UNCONFIRMED\n");
+			//  Check Datarate
+			//  Check TxPower
 			break;
 		}
 		case MCPS_CONFIRMED:
 		{
-			// Check Datarate
-			// Check TxPower
-			// Check AckReceived
-			// Check NbTrials
+			// printf("\n McpsConfirm: MCPS_CONFIRMED\n");
+			//  Check Datarate
+			//  Check TxPower
+			//  Check AckReceived
+			//  Check NbTrials
 			break;
 		}
 		case MCPS_PROPRIETARY:
@@ -255,9 +268,14 @@ void turnOffRGB(void)
 }
 #endif
 
-void __attribute__((weak)) downLinkAckHandle()
+void __attribute__((weak)) downLinkAckHandle(McpsConfirm_t *mcpsConfirm)
 {
-	printf("ack received\r\n");
+	// printf("\n **** ack received\r\n");
+}
+
+void __attribute__((weak)) downLinkAckHandle(McpsIndication_t *mcpsIndication)
+{
+	// printf("\n **** ack received\r\n");
 }
 
 void __attribute__((weak)) downLinkDataHandle(McpsIndication_t *mcpsIndication)
@@ -280,6 +298,7 @@ void __attribute__((weak)) downLinkDataHandle(McpsIndication_t *mcpsIndication)
 int revrssi;
 static void McpsIndication(McpsIndication_t *mcpsIndication)
 {
+	// printf("\nMcpsIndication\n");
 	if (mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK)
 	{
 		return;
@@ -319,12 +338,13 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
 	default:
 		break;
 	}
-	DIO_PRINTF("downlink: rssi = %d, snr = %d, datarate = %d\r\n", mcpsIndication->Rssi, (int)mcpsIndication->Snr, (int)mcpsIndication->RxDoneDatarate);
+	DIO_PRINTF("330 mcpsIndication downlink: rssi = %d, snr = %d, datarate = %d\r\n", mcpsIndication->Rssi, (int)mcpsIndication->Snr, (int)mcpsIndication->RxDoneDatarate);
 
-	if (mcpsIndication->AckReceived)
-	{
-		downLinkAckHandle(mcpsIndication);
-	}
+	// TODO:
+	// if (mcpsIndication->AckReceived)
+	//{
+	downLinkAckHandle(mcpsIndication);
+	//}
 
 	if (mcpsIndication->RxData == true)
 	{
@@ -385,7 +405,7 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
 				LoRaWAN.displayJoined();
 			}
 #endif
-			DIO_PRINTF("joined\r\n");
+			DIO_PRINTF("\njoined passthroughMode:%d \r\n", passthroughMode);
 
 			// in PassthroughMode,do nothing while joined
 			if (passthroughMode == false)
@@ -396,8 +416,8 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
 		}
 		else
 		{
-			uint32_t rejoin_delay = 5 * 60 * 60 * 1000;
-			DIO_PRINTF("join failed, join again at 5 hour later\r\n");
+			uint32_t rejoin_delay = 1 * 60 * 60 * 1000;
+			DIO_PRINTF("join failed, join again at 1 hour later\r\n");
 			delay(5);
 			TimerSetValue(&TxNextPacketTimer, rejoin_delay);
 			TimerStart(&TxNextPacketTimer);
@@ -406,18 +426,22 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
 	}
 	case MLME_LINK_CHECK:
 	{
+		// printf("\n419 MLME_LINK_CHECK DemodMargin:%d\n mlmeConfirm->Status:%d ......\n", mlmeConfirm->DemodMargin, mlmeConfirm->Status);
+		// printf(".\n");
+		// printf(".");
 		if (mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK)
 		{
 			// Check DemodMargin
 			// Check NbGateways
 			dev_link_check(mlmeConfirm);
-			// DIO_PRINTF("MLME_LINK_CHECK DemodMargin:%d", mlmeConfirm->DemodMargin);
-			// DIO_PRINTF("MLME_LINK_CHECK NbRetries:%d", mlmeConfirm->NbRetries);
+			// printf("424 MLME_LINK_CHECK DemodMargin:%d", mlmeConfirm->DemodMargin);
+			//  DIO_PRINTF("MLME_LINK_CHECK NbRetries:%d", mlmeConfirm->NbRetries);
 		}
 		break;
 	}
 	case MLME_DEVICE_TIME:
 	{
+		printf("\nMLME_LINK_CHECK dev_time_updated mlmeConfirm->Status:%d\n", mlmeConfirm->Status);
 		if (mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK)
 		{
 			dev_time_updated();
@@ -593,6 +617,8 @@ void LoRaWanClass::join()
 {
 	if (overTheAirActivation)
 	{
+		// TODO:
+		// printf("joining...\n");
 		DIO_PRINTF("joining...\n");
 		MlmeReq_t mlmeReq;
 
@@ -614,6 +640,8 @@ void LoRaWanClass::join()
 	}
 	else
 	{
+		// TODO:
+		// printf("LoraWan_APP.cpp line: 634 ELSE joining...\n");
 		MibRequestConfirm_t mibReq;
 
 		mibReq.Type = MIB_NET_ID;
@@ -647,6 +675,9 @@ void LoRaWanClass::send()
 		MibRequestConfirm_t mibReq;
 		mibReq.Type = MIB_DEVICE_CLASS;
 		LoRaMacMibGetRequestConfirm(&mibReq);
+		// TODO:
+		// printf("\nmibReq.Param.ChannelsDatarate:%d \n mibReq.Param.ChannelsDefaultDatarate:%d \n currentDrForNoAdr:%d\n", mibReq.Param.ChannelsDatarate, mibReq.Param.ChannelsDefaultDatarate), currentDrForNoAdr;
+		// printf("....\n");
 
 		if (loraWanClass != mibReq.Param.Class)
 		{
